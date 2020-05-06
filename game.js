@@ -2,7 +2,6 @@ let userClickedPattern = [];
 let gamePattern = [];
 let isStarted = false;
 let level = 0;
-let userCount = 0;
 
 const buttonColors = ["red", "blue", "green", "yellow"];
 
@@ -34,34 +33,46 @@ function animationPress(currentColor) {
 }
 
 $(".btn").on("click", e => {
-    userCount++;        
     const userChosenColor = e.target.id;
     userClickedPattern.push(userChosenColor);
-    // console.log(userClickedPattern);
     playSound(userChosenColor);
     animationPress(userChosenColor)
-    if (userCount === gamePattern.length) {
-        checkAnswer(userClickedPattern.length - 1)
-    }
+    checkAnswer(userClickedPattern.length - 1)
 })
 
 $(window).on("keydown", function(e) {
     if (isStarted === false) {
-        if (e.key === "a") {
+            gamePattern = [];
+            userClickedPattern = [];
             nextSequence()
         }
         isStarted = true;
-    }
 })
+
+function waitForRestart() {
+    isStarted = false;
+    level = 0;
+    gamePattern = [];
+    userClickedPattern = [];
+}
 
 
 function checkAnswer(currentLevel) {
-    userCount = 0
-    console.log(currentLevel, userClickedPattern, gamePattern)
     if (userClickedPattern[currentLevel] === gamePattern[currentLevel]) {
-        console.log("good");
-        setTimeout(nextSequence, 1000)
+        if (userClickedPattern.length === gamePattern.length) {
+            console.log("good");
+            console.log("LEVEL : " + currentLevel, "YOU : " + userClickedPattern, "COM : " + gamePattern)
+            setTimeout(nextSequence, 1000)
+        } 
     } else {
-        console.log("fuck");
+        console.log("wrong");
+        console.log("LEVEL : " + currentLevel, "YOU : " + userClickedPattern, "COM : " + gamePattern)
+        
+        playSound("wrong")
+        $("body").addClass("game-over");
+        setTimeout($("body").removeClass("game-over"), 200)
+        $("h1").text("Game Over, Press any key to restart.");
+        waitForRestart();
+        return
     }
 }
